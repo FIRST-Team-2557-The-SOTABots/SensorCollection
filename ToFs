@@ -1,0 +1,24 @@
+	public void readTofs(){
+		if (RobotMap.serial.getBytesReceived() == 0) return;
+
+		str += RobotMap.serial.readString();
+		while (str.indexOf('\n') != -1) {
+			list.add(str.substring(0, str.indexOf('\n')));
+			str = str.substring(str.indexOf('\n') + 1);
+		}
+
+		for (int i = 0; i < list.size(); i++) {
+			String temp = list.get(i);
+			for (String key : RobotMap.arduino.keySet()) {
+				if (temp.contains(key)) {
+					String[] arr = temp.split(key);
+					parseNumber(arr[1], 0, key);
+				}
+			}
+			list.remove(i);
+		}
+		RobotMap.tofAngle = Math.toDegrees(Math.atan2((RobotMap.arduino.get("ToFR") - RobotMap.arduino.get("ToFL")),RobotMap.TofDistance));
+		RobotMap.tofAngle = (Math.round(RobotMap.tofAngle*100))/100.0;
+
+		SmartDashboard.putString("tof values", RobotMap.arduino.values().toString());
+	}
